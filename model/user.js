@@ -7,7 +7,7 @@ var user = new Schema({
     firstName: String ,
     lastName:  String ,
     password: {type: String , required:true  },
-    //todoList:[{type:ObjectId , ref:"TodoList"}]
+     task:[{type:ObjectId , ref:"Task"}]
     
     
 });
