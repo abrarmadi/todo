@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var task = new Schema({
     
     title: String,
-    completeness: Boolean,
+    completeness: {type:Boolean , default:false},
     expiryDate: Date
     
     
