@@ -29,8 +29,9 @@ var db = mongoose.connect('mongodb://localhost/todo-list');
      user.lastName  = request.body.lastName;
      user.password  = request.body.password;
     
-    user.save(function(err,savedUser)
-             {
+      if( user.username != null && user.password != null){
+      
+    user.save(function(err,savedUser) {
         if(err){
                 response.status(500).send({error:"couldn't register a new user , please choose a nother username"});
             }
@@ -41,6 +42,11 @@ var db = mongoose.connect('mongodb://localhost/todo-list');
         }
         
     }); 
+      
+  }
+      
+      
+      else{    response.send("please enter a username and password")}
 });
 
 
@@ -49,6 +55,9 @@ var db = mongoose.connect('mongodb://localhost/todo-list');
 // user-login
 
 app.post('/login',function(request,response){
+    
+   if(request.body.username != null && request.body.password != null) 
+   {
      User.findOne({username : request.body.username , password :request.body.password }, function(rss,user){
          if(rss){
              response.status(500).send({error:"couldn't log in"});
@@ -64,7 +73,13 @@ app.post('/login',function(request,response){
              {    request.session.user = user;//start a session for the user
                  response.status(200).send(user);
              }
-     });   
+     }); 
+    
+    
+   }
+  else
+    { response.send("please enter your username and password") }
+    
         });
 
 
@@ -129,8 +144,9 @@ app.put('/task/add',function(request,response){
     
     var tsk = new Task();
     tsk.title = request.body.title;
-    
-    tsk.save(function(err, newTask){
+ if(request.body.title != null && request.body.title != "" )
+ {
+     tsk.save(function(err, newTask){
       if(err){
                 response.status(500).send("couldn't create a new task");}
         
@@ -155,7 +171,11 @@ app.put('/task/add',function(request,response){
      }
         
     });// end of the save function
+}
     
+    
+else
+{response.send("please enter your task");}
     });// end of put
 
  
@@ -209,5 +229,147 @@ app.get('/task/:todoListId',function(request, response){
  });
 
 
+// edit the todo list
 
+
+
+app.put('/list/edit',function(request,response){
+    
+    if(request.body.listId != null && request.body.userId != null ){
+    
+    TodoList.findOne({_id: request.body.listId},function(err,list){
+        
+        if(err)
+            {
+                response.status(500).send("error");
+            }
+        
+        
+        else
+            {
+               // var myObjectId = mongoose.Types.ObjectId("task10");
+                User.update({_id:request.body.userId }, {$set:{"todoList.1.title":"task10"}}, function(err,a){
+                    
+                    if(err)
+                        {response.status(500).send(err)}
+                    else
+                        { response.send("worked!"+ list);}
+                    
+                    
+                });
+               
+            }
+    });
+    
+    
+    
+    }
+    else
+        {
+            response.status(500).send("enter data");
+        }
+    
+});
+/*
+app.put('/list/edit',function(request,response){
+           
+             TodoList.findOne({_id:request.body.listId},function(err,list){
+                 
+                 
+            if(err) {response.status(500).send({error:"couldn't find the list to edit"}); }
+            else 
+            
+            {
+                 
+               
+                
+                
+                    User.update(
+                      {_id:request.body.userId  },
+                      { $set: {"todoList.$.title":"6"}},function(err,st){
+
+                 if(err){response.status(500).send(err) }
+                 else{response.status(200).send(st);}
+
+                                                        });
+               
+                
+            }
+                              
+                              
+            });
+ */
+
+//delete todo list
+app.delete('/list/delete',function(request,response){
+    
+    TodoList.findOne({_id: request.body.listId},function(err,list){
+        
+        if(err)
+            {
+                response.status(500).send({error:"couldn't find the list"});
+            }
+        
+        else
+            {
+                
+          User.update({_id:request.body.userId},{$pull:{todoList:request.body.listId}},function(rss,delList){
+              
+              if(rss)
+              {
+                response.status(500).send({error:"couldn't delete the list"});
+              }
+              else
+                  {
+                     response.status(200).send(" the list has been deleted");  
+                  }
+              
+              
+          } );
+                
+                
+            }
+        
+    });
+    
+    
+});
+    
+    
+ // delete a task
+
+
+app.delete('/task/delete',function(request,response){
+    
+    Task.findOne({_id: request.body.taskId},function(err,task){
+        
+        if(err)
+            {
+                response.status(500).send({error:"couldn't find the task"});
+            }
+        
+        else
+            {
+                
+          TodoList.update({_id:request.body.listId},{$pull:{task:request.body.taskId}},function(rss,delTask){
+              
+              if(rss)
+              {
+                response.status(500).send({error:"couldn't delete the task"});
+              }
+              else
+                  {
+                     response.status(200).send(" the task has been deleted");  
+                  }
+              
+              
+          } );
+                
+                
+            }
+        
+    });
+    
+    
+});
 
