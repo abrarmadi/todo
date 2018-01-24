@@ -20,7 +20,6 @@ var db = mongoose.connect('mongodb://localhost/todo-list');
 
 
 // register a new user
-
   app.post('/register',function(request,response){
     
    var user = new User();
@@ -53,7 +52,6 @@ var db = mongoose.connect('mongodb://localhost/todo-list');
 
 
 // user-login
-
 app.post('/login',function(request,response){
     
    if(request.body.username != null && request.body.password != null) 
@@ -98,13 +96,15 @@ app.get('/logout',function(request,response){
 
 
 //create to do list
-
-
 app.put('/list/add',function(request,response){
-    
+    if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
     var todo = new TodoList();
     todo.title = request.body.title;
-    
+     todo.user = request.body.userId ;
     todo.save(function(err, newList){
       if(err){
                 response.status(500).send("couldn't create a new list");
@@ -124,28 +124,28 @@ app.put('/list/add',function(request,response){
 
                                                         });
                  }
-
-            });
-
-
-            
+            }); 
         }
         
     });// end of the save function
-    
+    }
     });// end of put
 
 
 
 
 // create a new task
-
 app.put('/task/add',function(request,response){
-    
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
     var tsk = new Task();
-    tsk.title = request.body.title;
+     tsk.title = request.body.title;
+    
  if(request.body.title != null && request.body.title != "" )
- {
+ {   tsk.todo = request.body.todoId ;
      tsk.save(function(err, newTask){
       if(err){
                 response.status(500).send("couldn't create a new task");}
@@ -157,8 +157,9 @@ app.put('/task/add',function(request,response){
         if(err)
             { response.status(500).send({error:"couldn't find the list"}); }
         else {
+                
               TodoList.update({_id:request.body.todoId},{$addToSet:{task:newTask._id}},function(err,st){
-
+                
              if(err){ 
                  response.status(500).send({error:"couldn't add a task"}) }
                    else{
@@ -176,15 +177,18 @@ app.put('/task/add',function(request,response){
     
 else
 {response.send("please enter your task");}
+    }
     });// end of put
 
  
 
 // show the to-do lists for the user
-
-
 app.get('/list/:userId',function(request, response){
-    
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
     User.findOne({_id:request.params.userId}).populate({path:'todoList', model:'TodoList'}).exec( function(err,user){
      
      if(err){response.status(500).send({error:"couldn't find the user to show the lists"}); }
@@ -201,16 +205,19 @@ app.get('/list/:userId',function(request, response){
     
         }
      });
-    
+    }
  });
     
  
 
 // show the tasks of a list
-
-
 app.get('/task/:todoListId',function(request, response){
-    
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
+       
     TodoList.findOne({_id:request.params.todoListId}).populate({path:'task', model:'Task'}).exec( function(err,todo){
      
      if(err){response.status(500).send({error:"couldn't find the list to show the tasks"}); }
@@ -225,85 +232,100 @@ app.get('/task/:todoListId',function(request, response){
   
         }
      });
-    
+    }
  });
 
 
-// edit the todo list
-
-
-
-app.put('/list/edit',function(request,response){
-    
-    if(request.body.listId != null && request.body.userId != null ){
-    
-    TodoList.findOne({_id: request.body.listId},function(err,list){
-        
-        if(err)
+//edit the title of a task
+app.put('/task/edit',function(request,response){
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else
+      {
+    Task.findOne({_id:request.body.taskId ,todo:request.body.listId },function(rss,task){
+         if(rss)
             {
-                response.status(500).send("error");
+                response.status(500).send({error:"couldn't find the task"});
             }
-        
         
         else
             {
-               // var myObjectId = mongoose.Types.ObjectId("task10");
-                User.update({_id:request.body.userId }, {$set:{"todoList.1.title":"task10"}}, function(err,a){
-                    
-                    if(err)
-                        {response.status(500).send(err)}
-                    else
-                        { response.send("worked!"+ list);}
-                    
-                    
-                });
-               
+                
+              Task.update({_id:request.body.taskId},{$set:{title:request.body.nTitle}}, function(err,t){
+                  
+            if(err)
+            {
+                response.status(500).send({error:"couldn't update"});
             }
+             else
+                 {
+                     response.status(200).send(t);
+                 }
+                  
+                  
+              }) ; 
+                
+            }
+        
     });
     
-    
-    
-    }
-    else
-        {
-            response.status(500).send("enter data");
-        }
-    
+}
 });
-/*
+
+
+//edit the title of a list
 app.put('/list/edit',function(request,response){
-           
-             TodoList.findOne({_id:request.body.listId},function(err,list){
-                 
-                 
-            if(err) {response.status(500).send({error:"couldn't find the list to edit"}); }
-            else 
-            
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else
+      {
+    TodoList.findOne({_id:request.body.listId ,user:request.body.userId },function(err,list){
+         if(err)
             {
-                 
-               
+                response.status(500).send({error:"couldn't find the list"});
+            }
+        
+        else
+            {
                 
-                
-                    User.update(
-                      {_id:request.body.userId  },
-                      { $set: {"todoList.$.title":"6"}},function(err,st){
-
-                 if(err){response.status(500).send(err) }
-                 else{response.status(200).send(st);}
-
-                                                        });
-               
+              TodoList.update({_id:request.body.listId},{$set:{title:request.body.nTitle}}, function(err,t){
+                  
+            if(err)
+            {
+                response.status(500).send({error:"couldn't update"});
+            }
+             else
+                 {
+                     response.status(200).send(t);
+                 }
+                  
+                  
+              }) ; 
                 
             }
-                              
-                              
-            });
- */
+        
+    });
+    
+}
+});
+
+
+
 
 //delete todo list
+
 app.delete('/list/delete',function(request,response){
-    
-    TodoList.findOne({_id: request.body.listId},function(err,list){
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
+    TodoList.findOne({_id:request.body.listId , user:request.body.userId }, function(err,l){
+     
         
         if(err)
             {
@@ -312,10 +334,15 @@ app.delete('/list/delete',function(request,response){
         
         else
             {
-                
-          User.update({_id:request.body.userId},{$pull:{todoList:request.body.listId}},function(rss,delList){
+                         TodoList.deleteOne({_id: request.body.listId}, function(err,delT){
+                    
+                    if(err){response.status(500).send({error:"couldn't delete the list"});}
+                    
+                    else
+                        {
+                         User.update({_id:request.body.userId},{$pull:{todoList:request.body.listId}},function(err,delList){
               
-              if(rss)
+              if(err)
               {
                 response.status(500).send({error:"couldn't delete the list"});
               }
@@ -325,23 +352,26 @@ app.delete('/list/delete',function(request,response){
                   }
               
               
-          } );
-                
-                
+          } );       
+                        
+                    }     
+                });    
+                    
             }
-        
     });
     
-    
+    }
 });
-    
-    
+
+
  // delete a task
-
-
 app.delete('/task/delete',function(request,response){
-    
-    Task.findOne({_id: request.body.taskId},function(err,task){
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
+    Task.findOne({_id: request.body.taskId , todo:request.body.listId},function(err,task){
         
         if(err)
             {
@@ -350,26 +380,100 @@ app.delete('/task/delete',function(request,response){
         
         else
             {
+                Task.deleteOne({_id: request.body.taskId , todo:request.body.listId}, function(err,delT){
+                    
+                    if(err){response.status(500).send({error:"couldn't delete the task"});}
+                    
+                    else
+                        {
+                            
+                         TodoList.update({_id:request.body.listId},{$pull:{task:request.body.taskId}},function(err,delTask){
+
+                     if(err)
+                       {
+                        response.status(500).send({error:"couldn't delete the task"});
+                      }
+                    else
+                      {
+                         response.status(200).send(" the task has been deleted");  
+                      }
+
+
+                       } );
+
+                        }
                 
-          TodoList.update({_id:request.body.listId},{$pull:{task:request.body.taskId}},function(rss,delTask){
-              
-              if(rss)
-              {
-                response.status(500).send({error:"couldn't delete the task"});
-              }
-              else
-                  {
-                     response.status(200).send(" the task has been deleted");  
-                  }
-              
-              
-          } );
+                }); 
+            }
+    });
+    
+    }
+});
+
+//show the completed tasks
+app.get('/task/completed/:todoListId',function(request, response){
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
+    TodoList.findOne({_id:request.params.todoListId}).populate({path:'task', model:'Task'}).exec( function(err,todo){
+     
+     if(err){response.status(500).send({error:"couldn't find the list to show the tasks"}); }
+     else{
+         var listT =[];
+         for(var x  = 0 ; x< todo.task.length ; x++)
+             {   
+                 if(todo.task[x].completeness == true)
+                { listT.push(todo.task[x]);}
+                 
+             }
+         response.status(200).send( listT);
+  
+        }
+     });
+    }
+ });
+ 
+// change the state of completeness
+app.put('/task/completed',function(request,response){
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else
+      {
+    Task.findOne({_id:request.body.taskId ,todo:request.body.listId },function(err,task){
+         if(err)
+            {
+                response.status(500).send({error:"couldn't find the task"});
+            }
+        
+        else
+            {
                 
+              Task.update({_id:request.body.taskId},{$set:{completeness:request.body.state}}, function(err,t){
+                  
+            if(err)
+            {
+                response.status(500).send({error:"couldn't update"});
+            }
+             else
+                 {
+                     response.status(200).send(t);
+                 }
+                  
+                  
+              }) ; 
                 
             }
         
     });
     
-    
+}
 });
+
+
+
+
 
