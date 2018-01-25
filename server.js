@@ -364,6 +364,73 @@ app.delete('/list/delete',function(request,response){
 });
 
 
+
+//test
+app.delete('/l/delete',function(request,response){
+     if(!request.session.user)
+        {
+            response.status(401).send("log in first or create an account if you are a new user");
+        }
+    else{
+    TodoList.findOne({_id:request.body.listId , user:request.body.userId}, function(err,l){
+        
+        
+        if(err)
+            {
+                response.status(500).send({error:"couldn't find the list"});
+            }
+        
+        else
+            {         
+                
+                 console.log(l.task.length);
+                    if(l.task.length != 0)
+                        {
+                            response.send("WARNING!!couldn't find the list, there are tasks inside the list");
+                        }
+                else
+                       { TodoList.deleteOne({_id: request.body.listId}, function(err,delT){
+                    
+                    if(err){response.status(500).send({error:"couldn't delete the list"});}
+                    
+                    else
+                        {
+                         User.update({_id:request.body.userId},{$pull:{todoList:request.body.listId}},function(err,delList){
+              
+                       if(err)
+                      {
+                        response.status(500).send({error:"couldn't delete the list"});
+                      }
+                      else
+                          {
+                             response.status(200).send(" the list has been deleted");  
+                          }
+
+
+                        } );       
+                        
+                    }     
+                });  
+            }
+            }
+    });
+    
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  // delete a task
 app.delete('/task/delete',function(request,response){
      if(!request.session.user)
