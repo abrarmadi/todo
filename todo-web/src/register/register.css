@@ -16,11 +16,6 @@ box-shadow: 2px 2px 5px rgba(	59, 125, 198,.9);
 
 }
 
-.signin-text{
-color: white;
-
-
-}
 
 form.signin-form{
 max-width: 350px;
@@ -33,11 +28,5 @@ button.signin-btn{
   background-color: #636c72;
   width: 100%;
   margin-top:  1.2rem;
-}
-a.create-new-account{
-  color:white;
-text-align: center;
-display: block;
-
 }
 
