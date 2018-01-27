@@ -1,5 +1,6 @@
 import React, {Component}from 'react';
 import './login.css';
+import {Link } from 'react-router-dom';
 class Login extends Component{
     
     render(){
@@ -29,7 +30,7 @@ Get Life
     <button type="button" className="btn signin-btn btn-lg">Sign In</button>
 
   </div>
-    <a href="#" className="create-new-account">Create an account</a>
+    <Link to="/register" className="create-new-account">Create an account</Link>
 </form>
     </div>
 
