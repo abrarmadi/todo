@@ -202,7 +202,7 @@ app.get('/list/:userId',function(request, response){
          var listT =[];
          for(var x  = 0 ; x< user.todoList.length; x++)
              {
-                 listT.push(user.todoList[x].title);
+                 listT.push(user.todoList[x]);
 
              }
          response.status(200).send( listT);

@@ -3,7 +3,7 @@ import {Switch, Route } from 'react-router-dom';
 import Login from './login/login';
 import Register from './register/register';
 import Container from './container';
-
+import List1 from './list1/list1';
 
 const Main = ()=>(
 <main>
@@ -13,7 +13,9 @@ const Main = ()=>(
       
      <Route exact path='/register' component={Register} />
       
-     <Route exact path='/content' component={Container} />
+     <Route exact path='/content/:todoListId' component={Container} />
+    
+      <Route exact path='/lists' component={List1} />
     
  </Switch>  
     
