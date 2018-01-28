@@ -11,11 +11,11 @@ const Main = ()=>(
     
     <Route exact path='/' component={Login} />
       
-     <Route exact path='/register' component={Register} />
+     <Route exact path='/register'component={Register} />
       
-     <Route exact path='/content/:todoListId' component={Container} />
+     <Route exact path='/content/:todoListId'component={Container} />
     
-      <Route exact path='/lists' component={List1} />
+      <Route exact path='/lists/:userId' component={List1} />
     
  </Switch>  
     

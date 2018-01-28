@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import List from '../list/list';
+
 import axios from 'axios';
-import Header2 from './header2/header2';
+import Header2 from '../header2/header2';
 
 class List1 extends Component {
     
@@ -13,10 +13,10 @@ class List1 extends Component {
     
     componentWillMount(){
         this.getLists();
-        
+      
     }
     getLists(){
-        let userId = this.props.match.params.id;
+        let userId = this.props.match.params.userId;
         axios.get(`http://localhost:3000/list/${userId}`).then(response=>{
             
            this.setState({lists:response.data},()=>{
@@ -24,6 +24,7 @@ class List1 extends Component {
            })
             
         })
+        .catch(err=>console.log(err));
     }
    
   render() {
@@ -55,9 +56,6 @@ class List1 extends Component {
            </div>
               
               <div className="col"></div>
-            
-            
-            
             
             
       

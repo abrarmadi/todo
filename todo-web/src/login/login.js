@@ -1,11 +1,16 @@
 import React, {Component}from 'react';
 import './login.css';
+import axios from'axios';
 import {Link } from 'react-router-dom';
 class Login extends Component{
     
+  
+
+    
+    
     render(){
         return(  
-            <div className="container signin-container">
+   <div className="container signin-container">
 <div className="row">
 <div className="col"></div>
 
@@ -22,12 +27,12 @@ Get Life
 <form className="signin-form">
   <div className="form-group">
 
-      <input type="text" className="form-control" id="usernameInput" placeholder="Username"></input>
+      <input type="text" className="form-control" id="usernameInput" placeholder="Username" ref="username"></input>
   </div>
   <div className="form-group">
 
-      <input type="password" className="form-control" id="passwordInput" placeholder="Password"></input>
-    <button type="button" className="btn signin-btn btn-lg">Sign In</button>
+      <input type="password" className="form-control" id="passwordInput" placeholder="Password" ref="password"></input>
+     <button type="button"  >Sign In</button>
 
   </div>
     <Link to="/register" className="create-new-account">Create an account</Link>

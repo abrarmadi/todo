@@ -1,8 +1,39 @@
 import React, {Component}from 'react';
-import {Link } from 'react-router-dom';
+
+import axios from'axios';
+
 import './register.css';
 class Register extends Component{
-    
+   
+    signup(user){
+        axios.request({
+         method:'post',
+            ur:'http://localhost:3000/register',
+            data: user
+        }).then(response=>{
+            
+               this.setState({user:response.data},()=>{
+                 
+           })
+           
+             this.props.history.push('/');
+        })
+        
+        
+    }
+  onClick(e){
+      const user ={
+          username:this.refs.username.value,
+          email: this.refs.username.value,
+          password:this.refs.password.value
+          
+      }
+   
+      
+      this.signup(user);
+      e.preventDefault();
+  }
+   
     render(){
         return(  
             <div className="container signin-container">
@@ -18,20 +49,22 @@ class Register extends Component{
 <form className="signin-form">
   <div className="form-group">
 
-      <input type="text" className="form-control" id="usernameInput" placeholder="Username"></input>
+      <input type="text" className="form-control" id="usernameInput" placeholder="Username" ref="username"></input>
   </div>
      <div className="form-group">
 
-      <input type="email" className="form-control" id="emailInput" placeholder="Email"></input>
+      <input type="email" className="form-control" id="emailInput" placeholder="Email" ref="email"></input>
   </div>
   <div className="form-group">
 
-      <input type="password" className="form-control" id="passwordInput" placeholder="Password"></input>
-    <button type="button" className="btn signin-btn btn-lg">Sign Up</button>
+      <input type="password" className="form-control" id="passwordInput" placeholder="Password" ref="password"></input>
+      
+   
 
   </div>
- 
+
 </form>
+          <button type="button" onClick={this.onClick.bind(this)}>Sign Up</button>
     </div>
 
    

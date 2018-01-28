@@ -1,6 +1,6 @@
 import React, {Component}from 'react';
-import{Link} from 'react-router-dom';
-import Container from './container';
+import {Link} from 'react-router-dom';
+
 import './list.css';
 
 class List extends Component{
@@ -18,7 +18,7 @@ class List extends Component{
         
    
      <li className="collection-item">
-      <Link to {`/List1/${this.state.list.listId}`}>{this.state.list.title}</Link>
+      <Link to = {`/List1/${this.state.list.listId}`}>{this.state.list.title}</Link>
      </li>
   
   
